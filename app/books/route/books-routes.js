@@ -17,8 +17,10 @@ router.route('/details/:bookID').get(booksController.getSingleBook);
 // Create new book
 router.route('/create').get(booksController.getCreateNewBook);
 router.route('/create').post(booksController.postCreateNewBook);
-/*
+
+// update book by id
 router.route('/update/:bookID').put(booksController.putUpdateExistingBook);
+// delete book by id
 router.route('/delete/:bookID').delete(booksController.deleteExistingBook);
-*/
+
 module.exports = router;

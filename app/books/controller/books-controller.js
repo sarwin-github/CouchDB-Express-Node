@@ -8,7 +8,7 @@ const async   = require('async');
 module.exports.getAllBooks = (req, res) => {
 	// Request data
 	let getBooks = {
-	    url    :    `${db.couchDB}/_design/books_library/_view/books`,
+	    url    : `${db.couchDB}/_design/books_library/_view/books`,
 	    method : 'GET'
 	}
 
@@ -36,7 +36,7 @@ module.exports.getAllBooks = (req, res) => {
 module.exports.getAllAuthors = (req, res) => {
 	// Request data
 	let getAuthors = {
-	    url    :    `${db.couchDB}/_design/books_library/_view/authors`,
+	    url    : `${db.couchDB}/_design/books_library/_view/authors`,
 	    method : 'GET'
 	}
 
@@ -64,7 +64,7 @@ module.exports.getAllAuthors = (req, res) => {
 module.exports.getSingleBook = (req, res) => {
 	// Request data
 	let getSingleBook = {
-	    url    :    `${db.couchDB}/${req.params.bookID}`,
+	    url    : `${db.couchDB}/${req.params.bookID}`,
 	    method : 'GET'
 	}
 
@@ -109,64 +109,68 @@ module.exports.postCreateNewBook = (req, res) => {
 
 	// Request data
 	let createBook = {
-	    url     : `${db.couchDB}`,
-	    method  : 'POST',
-	    headers : { accept: 'application/json', 'content-type': 'application/json'},
-	    qs      : bookObject
+	    url    : `${db.couchDB}`,
+	    method : 'POST',
+	    body   : bookObject,
+	    json   : true
 	}
 
-
-	console.log(createBook)
 	// Start the request
 	request(createBook, (error, response, bookDetails) => {
-	    if(error || JSON.parse(bookDetails).error){
+	    if(error){
 	        return res.status(500).send({ 
 	            success: false, 
 	            message: "Something went wrong.", 
-	            error: JSON.parse(bookDetails) 
+	            error: error
 	        });
 	    }
 	    res.status(200).json({
 	        success: true,
-	        message: "Successfully fetched book details.", 
-	        bookDetails: JSON.parse(bookDetails)
+	        message: "Successfully added new book."
 	    });
 	}); 
 }
-/*
+
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // HTTP put for updating an existing book
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 module.exports.putUpdateExistingBook = (req, res) => {
 	async.waterfall([
 		(callback) => {
-			db.couchDB.get(req.params.bookID, (err, book) => {
-				if(!book){
-					return res.status(404).json({ 
-						sucess  : false, 
-						error   : 'Error searching the book', 
-						message : 'The Book you are looking for does not exist.'
-					});
-				}
-				console.log(book)
-				callback(err, book);
-			});
+			// Request data
+			let getSingleBook = {
+			    url    : `${db.couchDB}/${req.params.bookID}`,
+			    method : 'GET'
+			}
+
+			// Start the request
+			request(getSingleBook, (error, response, bookDetails) => {
+			    callback(error, JSON.parse(bookDetails))
+			}); 
 		}, (book, callback) => {
-			let changes = {
+			let bookObject = {
 				Title     : req.body.title,
 				Author    : req.body.author,
 				Type      : req.body.type,
 				ISBN      : req.body.isbn,
-				_rev      : book._rev,
 				dateUpdated : new Date()
 			}
 
-			db.couchDB.insert(changes, book._id, function (err, book) {
-                callback(err, book);
-            })
+			// Request data
+			let updateBook = {
+			    url    : `${db.couchDB}/${book._id}`,
+			    method : 'PUT',
+			    qs     : { 'rev': book._rev },
+			    json   : true,
+			    body   : bookObject
+			}
 
+			// Start the request
+			request(updateBook, (error, response, bookDetails) => {
+				callback(error, bookDetails)
+			}); 
 		}], (err, result) => {
-			if(err){
+			if(err || result.error){
 				return res.status(500).json({
 					success : false, 
 					err     : err,
@@ -188,20 +192,28 @@ module.exports.putUpdateExistingBook = (req, res) => {
 module.exports.deleteExistingBook = (req, res) => {
 	async.waterfall([
 		(callback) => {
-			db.couchDB.get(req.params.bookID, (err, book) => {
-				if(!book){
-					return res.status(404).json({ 
-						sucess  : false, 
-						error   : 'Error searching the book', 
-						message : 'The Book you are looking for does not exist.'
-					});
-				}
-				callback(err, book);
-			});
+			// Request data
+			let getSingleBook = {
+			    url    : `${db.couchDB}/${req.params.bookID}`,
+			    method : 'GET'
+			}
+
+			// Start the request
+			request(getSingleBook, (error, response, bookDetails) => {
+			    callback(error, JSON.parse(bookDetails))
+			}); 
 		}, (book, callback) => {
-			db.couchDB.destroy(book._id, book._rev, function (err, book) {
-                callback(err, book);
-            });
+			// Request data
+			let deleteBook = {
+			    url    : `${db.couchDB}/${book._id}`,
+			    method : 'DELETE',
+			    qs     : { 'rev': book._rev },
+			}
+
+			// Start the request
+			request(deleteBook, (error, response, bookDetails) => {
+				callback(error, JSON.parse(bookDetails))
+			}); 
 		}], (err, result) => {
 			if(err){
 				return res.status(500).json({
@@ -217,4 +229,4 @@ module.exports.deleteExistingBook = (req, res) => {
 				"Details" : result
 			});
 		});
-}*/
+}
