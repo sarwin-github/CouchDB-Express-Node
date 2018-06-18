@@ -1,14 +1,14 @@
 # CouchDB-Express-Node
 CRUD operation using CouchDB database with Node, Express and Nano module
 
-##To begin you must install CouchDB on your local machine or other server.
+## To begin you must install CouchDB on your local machine or other server.
 
-##After cloning the repository do npm install and add an .env file for the following:
+## After cloning the repository do npm install and add an .env file for the following:
   - sessionKey
   - CouchDBUser
   - CouchDBPassword
   
-##list of routes you can access
+## list of routes you can access
 
   /api - will land on home page
   /api/books - will get the list of books
