@@ -1,0 +1,16 @@
+{ 
+    "_id": "_design/books_library", 
+    "language": "javascript", 
+    "views": { 
+        "books": { 
+            "map": "function (doc) { 
+                if(doc.Title) { emit (doc.Title, doc); } 
+            }"
+        },
+        "author": {
+        	"map": "function (doc) { 
+                if(doc.Author) { emit (doc.Author, 1); } 
+            }"
+        }
+    } 
+} 

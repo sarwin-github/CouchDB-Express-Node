@@ -1,0 +1,32 @@
+{
+  "_id": "978-0553380163",
+  "_rev": "3-37f032aa66edbd919b9ef1eac3e151a4",
+  "Title": "A Brief History of Time",
+  "Author": "Stephen Hawking",
+  "Type": "Paperback – Unabridged, September 1, 1998",
+  "ISBN": "978-0553380163"
+},
+{
+  "_id": "978-0553380164",
+  "_rev": "3-37f032aa66edbd919b9ef1eac3e151a4",
+  "Title": "The Theory of Everything",
+  "Author": "Stephen Hawking",
+  "Type": "Biography, Movie: January 15, 2016",
+  "ISBN": "978-0553380164"
+},
+{
+  "_id": "978-0553380165",
+  "_rev": "1-14b317bc2d144e4e8c38763b6f901036",
+  "Title": "How to do CSS the easy way",
+  "Author": "Jun Marchois",
+  "Type": "Book - September 11, 2004",
+  "ISBN": "588-1258799674"
+},
+{
+  "_id": "ccef9be7221e16800e026d4730016788",
+  "_rev": "1-c5c0a63a711cb5bef47d508e2426492b",
+  "Title": "JavaScript for Dummies",
+  "Author": "Miles Jonathan",
+  "Type": "Fully published book",
+  "ISBN": "585-258765535"
+}
