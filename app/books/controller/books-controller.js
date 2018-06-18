@@ -1,46 +1,60 @@
-const db    = require('../../../config/couch-db-context');
-const async = require('async');
+const db      = require('../../../config/couch-db-context');
+const request = require('request');
+const async   = require('async');
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This will get the list of books from library
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 module.exports.getAllBooks = (req, res) => {
-	db.couchDB.view("books_library", "books", (err, books) => { 
-		if(err){
-			return res.status(500).json({ 
-				sucess  : false, 
-				error   : err, 
-				message : 'Something went wrong with the server.'
-			});
-		} 
+	// Request data
+	let getBooks = {
+	    url    :    `${db.couchDB}/_design/books_library/_view/books`,
+	    method : 'GET'
+	}
 
-		res.status(200).json({
-			success   : true, 
-			message   : 'Successfully fetched the list of books',
-			books   : books.length === 0 ? 'List of Books is currently empty.' : books
-		}); 
+	// Start the request
+	request(getBooks, (error, response, books) => {
+	    if(error || JSON.parse(books).error === 'not_found'){
+	        return res.status(500).send({ 
+	            success: false, 
+	            message: "Something went wrong.", 
+	            error: JSON.parse(books) 
+	        });
+	    }
+	    res.status(200).json({
+	        success : true,
+	        message : "Successfully fetched a list of books.", 
+	        books   : JSON.parse(books)
+	    });
 	}); 
 }
+
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This will get the list of books from library filtered by authors
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 module.exports.getAllAuthors = (req, res) => {
-	db.couchDB.view("books_library", "authors", (err, author) => {
-		if(err){
-			return res.status(500).json({ 
-				sucess  : false, 
-				error   : err, 
-				message : 'Something went wrong with the server.'
-			});
-		} 
+	// Request data
+	let getAuthors = {
+	    url    :    `${db.couchDB}/_design/books_library/_view/authors`,
+	    method : 'GET'
+	}
 
-		res.status(200).json({
-			success   : true, 
-			message   : 'Successfully fetched the list of author',
-			author    : author.length === 0 ? 'List of Authors is currently empty.' : author
-		}); 
-	});
+	// Start the request
+	request(getAuthors, (error, response, author) => {
+	    if(error || JSON.parse(author).error === 'not_found'){
+	        return res.status(500).send({ 
+	            success: false, 
+	            message: "Something went wrong.", 
+	            error: JSON.parse(author) 
+	        });
+	    }
+	    res.status(200).json({
+	        success: true,
+	        message: "Successfully fetched a list of authors.", 
+	        author: JSON.parse(author)
+	    });
+	}); 
 }
 
 
@@ -48,29 +62,27 @@ module.exports.getAllAuthors = (req, res) => {
 // This will get the details of a single book
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 module.exports.getSingleBook = (req, res) => {
-	db.couchDB.get(req.params.bookID, (err, book) => {
-		if(err){
-			return res.status(500).json({ 
-				sucess  : false, 
-				error   : err, 
-				message : 'Something went wrong with the server.'
-			});
-		} 
+	// Request data
+	let getSingleBook = {
+	    url    :    `${db.couchDB}/${req.params.bookID}`,
+	    method : 'GET'
+	}
 
-		if(!book){
-			return res.status(404).json({ 
-				sucess  : false, 
-				error   : 'Error searching the book', 
-				message : 'The Book you are looking for does not exist.'
-			});
-		} 
-
-		res.status(200).json({
-			success : true, 
-			message : 'Successfully fetched the list of book',
-			book    : book
-		}); 
-	});
+	// Start the request
+	request(getSingleBook, (error, response, bookDetails) => {
+	    if(error || JSON.parse(bookDetails).error === 'not_found'){
+	        return res.status(500).send({ 
+	            success: false, 
+	            message: "Something went wrong.", 
+	            error: JSON.parse(bookDetails) 
+	        });
+	    }
+	    res.status(200).json({
+	        success: true,
+	        message: "Successfully fetched book details.", 
+	        bookDetails: JSON.parse(bookDetails)
+	    });
+	}); 
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -84,10 +96,10 @@ module.exports.getCreateNewBook = (req, res) => {
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// HTTP post for inserting or creating a new book
+// HTTP book for inserting or creating a new book
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 module.exports.postCreateNewBook = (req, res) => {
-	let book = {
+	let bookObject = {
 		Title     : req.body.title,
 		Author    : req.body.author,
 		Type      : req.body.type,
@@ -95,22 +107,33 @@ module.exports.postCreateNewBook = (req, res) => {
 		dateAdded : new Date()
 	}
 
-	db.couchDB.insert(book, (err, book) => {
-		if(err){
-			return res.status(500).json({
-				success: false, 
-				message: 'Something went wrong.'
-			});
-		}
+	// Request data
+	let createBook = {
+	    url     : `${db.couchDB}`,
+	    method  : 'POST',
+	    headers : { accept: 'application/json', 'content-type': 'application/json'},
+	    qs      : bookObject
+	}
 
-		res.status(200).json({
-			success   : true, 
-			message   : 'Successfully added a new book',
-			"Details" : book
-		});
-	});
+
+	console.log(createBook)
+	// Start the request
+	request(createBook, (error, response, bookDetails) => {
+	    if(error || JSON.parse(bookDetails).error){
+	        return res.status(500).send({ 
+	            success: false, 
+	            message: "Something went wrong.", 
+	            error: JSON.parse(bookDetails) 
+	        });
+	    }
+	    res.status(200).json({
+	        success: true,
+	        message: "Successfully fetched book details.", 
+	        bookDetails: JSON.parse(bookDetails)
+	    });
+	}); 
 }
-
+/*
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // HTTP put for updating an existing book
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -194,4 +217,4 @@ module.exports.deleteExistingBook = (req, res) => {
 				"Details" : result
 			});
 		});
-}
+}*/
