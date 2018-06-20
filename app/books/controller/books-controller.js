@@ -93,7 +93,7 @@ module.exports.getSingleBook = async (req, res) => {
    		return res.status(200).json({
    		    success : true,
 	        message : "Successfully fetched the details of the book.", 
-	        bookDetails : bookDetails
+	        book    : bookDetails
    		});
    	} catch(err){
    		return res.status(500).json({ 
