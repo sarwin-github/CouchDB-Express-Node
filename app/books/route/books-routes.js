@@ -7,6 +7,7 @@ const booksController = require('../controller/books-controller');
 router.route('/').get(booksController.getAllBooks);
 router.route('/list').get(booksController.getAllBooks);
 
+
 // Get the list of books group by author
 router.route('/author').get(booksController.getAllAuthors);
 
@@ -17,7 +18,9 @@ router.route('/details/:bookID').get(booksController.getSingleBook);
 router.route('/create').get(booksController.getCreateNewBook);
 router.route('/create').post(booksController.postCreateNewBook);
 
+// update book by id
 router.route('/update/:bookID').put(booksController.putUpdateExistingBook);
+// delete book by id
 router.route('/delete/:bookID').delete(booksController.deleteExistingBook);
 
 module.exports = router;
