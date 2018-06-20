@@ -8,7 +8,7 @@ const db = {
 	database: 'mylibrary'
 }
 
-module.exports.couchDB = require("nano")(`http://${db.username}:${db.password}@${db.host}`).use(`${db.database}`)
+module.exports.couchDB = `http://${db.username}:${db.password}@${db.host}/${db.database}`;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Session storage and database configuration 
