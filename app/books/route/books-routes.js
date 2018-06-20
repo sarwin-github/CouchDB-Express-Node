@@ -13,6 +13,7 @@ router.route('/author').get(booksController.getAllAuthors);
 
 // Get single books detail
 router.route('/details/:bookID').get(booksController.getSingleBook);
+router.route('/:bookID').get(booksController.getSingleBook);
 
 // Create new book
 router.route('/create').get(booksController.getCreateNewBook);
