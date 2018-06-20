@@ -164,12 +164,11 @@ module.exports.putUpdateExistingBook = async (req, res) => {
 	    json   : true
 	}
 
+	let bookDetails;
+
 	try{
 		// get single book details
-		let bookDetails = await promiseRequest(getBookID);
-
-		// update a book
-		return updateBook(bookDetails, req, res);
+		bookDetails = await promiseRequest(getBookID);
 	} catch(err) {
 		return res.status(500).json({ 
             success: false, 
@@ -177,6 +176,8 @@ module.exports.putUpdateExistingBook = async (req, res) => {
             error: err
         });
 	}
+
+	await updateBook(bookDetails, req, res);
 }
 
 // update book function
@@ -226,12 +227,11 @@ module.exports.deleteExistingBook = async (req, res) => {
 	    json   : true
 	}
 
+	let bookDetails;
+
 	try{
 		// get single book details
-		let bookDetails = await promiseRequest(getBookID);
-
-		// delete a book
-		return deleteBook(bookDetails, req, res);
+		bookDetails = await promiseRequest(getBookID);
 	} catch(err) {
 		return res.status(500).json({ 
             success: false, 
@@ -239,6 +239,9 @@ module.exports.deleteExistingBook = async (req, res) => {
             error: err
         });
 	}
+
+	// delete a book
+	await deleteBook(bookDetails, req, res);
 }
 
 // delete book function
